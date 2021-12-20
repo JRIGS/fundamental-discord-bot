@@ -22,18 +22,31 @@ client.on('messageCreate', (message) => {
         // console.log(args);
 
         if (CMD_NAME === 'kick') {
-            if (args.length === 0) return message.reply('Please provide an ID');
+            if (message.member.hasPermission('KICK_MEMBERS')) 
+            return message.reply('You do not have permission to kick that user')
+            
+            if (args.length === 0) 
+            return message.reply('Please provide an ID');
+            
             const member = message.guild.members.cache.get(args[0]);
             if (member) {
-                member.kick();
+                member.kick()
+                .then((member) => message.channel.send(`${member} was kicked.`))
+                .catch((err) => message.channel.send('I cannot kick that user'));
                 // console.log(`${member.author.tag} kicked!`);
             } else {
-                message.channel.send('That member was not found')
+                message.channel.send('That member was not found');
             }
         } 
-        // else if (CMD_NAME === 'ban') {
-        //     message.channel.sent('Banned the user');
-        // }
+
+        else if (CMD_NAME === 'ban') {
+            if (!message.member.permissions.has('BAN_MEMBERS')) 
+            return message.reply('You do not have permission to BAN that user');
+            if (args.length === 0) 
+            return message.reply('Please provide an ID');
+            message.guild.members.ban(args[0])
+                .catch((err) => console.log(err));
+        }
         
     }
     console.log(`[${message.author.tag}]: ${message.content}`);
