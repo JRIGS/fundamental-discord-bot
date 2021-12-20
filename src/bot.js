@@ -1,8 +1,18 @@
 require('dotenv').config();
 
 const { Client, Intents, Guild } = require('discord.js');
-const client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({ 
+    partials: ['CHANNEL', 'REACTION', 'MESSAGE', 'USER'],
+    intents: [Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+        Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+        Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
+        Intents.FLAGS.GUILD_MEMBERS,
+        Intents.FLAGS.DIRECT_MESSAGE_TYPING]
+});
 const PREFIX = "$";
+
 
 //confirm ready status from bot
 client.on('ready', () => {
@@ -10,7 +20,7 @@ client.on('ready', () => {
 });
 
 // If a message is created by a user then log it
-client.on('messageCreate', (message) => {
+client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 //Prefix conditional    
     if (message.content.startsWith(PREFIX)) {
@@ -44,14 +54,71 @@ client.on('messageCreate', (message) => {
             return message.reply('You do not have permission to BAN that user');
             if (args.length === 0) 
             return message.reply('Please provide an ID');
-            message.guild.members.ban(args[0])
-                .catch((err) => console.log(err));
+            
+            //async implemented
+            try {
+                const user = await message.guild.members.ban(args[0]);
+                message.channel.setNSFW('User was banned successfully')
+            } catch (err){
+                message.channel.send('An error occured. Either I do not have permissions or the User is not found')
+            }
+
         }
         
     }
     console.log(`[${message.author.tag}]: ${message.content}`);
     if (message.content.toLowerCase() === 'hello') {
         message.reply('Hello there!');
+    }
+});
+
+client.on('messageReactionAdd', (reaction, user) => {
+
+    console.log("test showing");
+
+    const { name } = reaction.emoji;
+    const member = reaction.message.guild.members.cache.get(user.id);
+    if (reaction.message.id === '922605976140521513') {
+        console.log("Message ID Exists");
+        switch (name){
+            case '🍎':
+                member.roles.add('922605357824626739');
+                break;
+            case '🍌':
+                member.roles.add('922605507620003911');
+                break;
+            case '☕':
+                member.roles.add('922605414758096897');
+                break;
+            case '🍑':
+                member.roles.add('922605507620003911');
+                break;
+        }
+    }
+});
+
+client.on('messageReactionRemove', (reaction, user) => {
+
+    console.log("test showing");
+
+    const { name } = reaction.emoji;
+    const member = reaction.message.guild.members.cache.get(user.id);
+    if (reaction.message.id === '922605976140521513') {
+        console.log("Message ID Exists");
+        switch (name){
+            case '🍎':
+                member.roles.remove('922605357824626739');
+                break;
+            case '🍌':
+                member.roles.remove('922605507620003911');
+                break;
+            case '☕':
+                member.roles.remove('922605414758096897');
+                break;
+            case '🍑':
+                member.roles.remove('922605507620003911');
+                break;
+        }
     }
 });
 
