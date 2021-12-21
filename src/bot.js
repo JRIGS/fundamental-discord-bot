@@ -75,6 +75,7 @@ client.on('messageCreate', async (message) => {
             const msg = args.join(' ');
             console.log(msg);
             webhookClient.send(msg);
+            message.delete()
         }
         
     }
